@@ -1,5 +1,5 @@
 from queue import Queue
-
+from random import shuffle
 from Model import Direction
 
 
@@ -33,8 +33,9 @@ class LocalMap:
         for direction in self.directions.keys():
             x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
             neighbor = self.map[y][x]
-            if neighbor is not None:
+            if neighbor.type != 2:
                 neighbors.append(neighbor)
+            shuffle(neighbors)
         return neighbors
 
     def _correct_coord(self, x, y):
