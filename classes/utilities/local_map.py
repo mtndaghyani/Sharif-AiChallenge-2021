@@ -1,3 +1,6 @@
+from queue import Queue
+
+
 class LocalMap:
     def __init__(self, game):
         self.game = game
@@ -44,3 +47,34 @@ class LocalMap:
         elif cell_y >= self.game.mapHeight:
             cell_y -= self.game.mapHeight
         return cell_x, cell_y
+
+    def get_path_to(self, func):
+        """Returns the path if found or None if not found"""
+        queue = Queue()
+        father = {}
+        marked = {}
+
+        current_cell = self.game.ant.getLocationCell()
+        queue.put(current_cell)
+        marked[current_cell] = True
+        father[current_cell] = None
+
+        return self._find_path(father, func, marked, queue)
+
+    def _find_path(self, father, func, marked, queue):
+        while queue.qsize() != 0:
+            cell = queue.get()
+            if func(cell):
+                path = []
+                while father[cell] is not None:
+                    path.append(father[cell])
+                    cell = father[cell]
+                return path
+            else:
+                neighbors = self.get_neighbors(cell)
+                for neighbor in neighbors:
+                    if not marked.get(neighbors, default=False):
+                        marked[neighbor] = True
+                        queue.put(neighbor)
+                        father[neighbor] = cell
+        return None
