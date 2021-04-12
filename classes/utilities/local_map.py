@@ -1,13 +1,16 @@
 from queue import Queue
 
+from Model import Direction
+
 
 class LocalMap:
     def __init__(self, game):
         self.game = game
-        self.directions = [(1, 0),
-                           (-1, 0),
-                           (0, 1),
-                           (0, -1)]
+        self.directions = {(1, 0): Direction.DOWN,
+                           (-1, 0): Direction.UP,
+                           (0, 1): Direction.RIGHT,
+                           (0, -1): Direction.LEFT,
+                           (0, 0): Direction.CENTER}
 
         self.map = self.build_map()
         self.view_distance = self.game.viewDistance
@@ -27,7 +30,7 @@ class LocalMap:
 
     def get_neighbors(self, cell):
         neighbors = []
-        for direction in self.directions:
+        for direction in self.directions.keys():
             x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
             neighbor = self.map[y][x]
             if neighbor is not None:
@@ -67,9 +70,9 @@ class LocalMap:
             if func(cell):
                 path = []
                 while father[cell] is not None:
-                    path.append(father[cell])
+                    path.append(self._get_direction(father[cell], cell))
                     cell = father[cell]
-                return path
+                return reversed(path)
             else:
                 neighbors = self.get_neighbors(cell)
                 for neighbor in neighbors:
@@ -78,3 +81,7 @@ class LocalMap:
                         queue.put(neighbor)
                         father[neighbor] = cell
         return None
+
+    def _get_direction(self, start_cell, end_cell):
+        dx, dy = self._correct_coord(end_cell.x - end_cell.x, end_cell.y - start_cell.y)
+        return self.directions.get((dy, dx))
