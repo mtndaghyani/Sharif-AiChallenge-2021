@@ -25,9 +25,8 @@ class LocalMap:
     def get_neighbors(self, cell):
         neighbors = []
         for direction in self.directions:
-            dy = cell.y + direction[0] - self.y
-            dx = cell.x + direction[1] - self.x
-            neighbor = self.game.ant.getMapRelativeCell(dx, dy)
+            x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
+            neighbor = self.map[y][x]
             if neighbor is not None:
                 neighbors.append(neighbor)
         return neighbors
