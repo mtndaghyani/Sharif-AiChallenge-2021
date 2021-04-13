@@ -1,5 +1,8 @@
+from random import randint
+
 from Model import *
 from classes.utilities.local_map import LocalMap
+from classes.utilities.none_cell import NoneCell
 
 
 class Agent:
@@ -10,7 +13,7 @@ class Agent:
         self.path_to_follow = []
         self._targets = {"RESOURCE": lambda cell: cell.resource_value > 0,
                          "HOME": lambda cell: cell.x == self.game.baseX and cell.y == self.game.baseY,
-                         "NEAREST_INVISIBLE": lambda cell: self.local_map.map[cell.y][cell.x] is None}
+                         "NEAREST_INVISIBLE": lambda cell: cell.type == -1}
 
     def initialize(self, game):
         self.game = game
@@ -19,4 +22,8 @@ class Agent:
     def get_answer(self):
         self.local_map.update_map()
         pass
+
+    @staticmethod
+    def get_random_direction():
+        return [Direction.DOWN, Direction.UP, Direction.RIGHT, Direction.LEFT][randint(0, 3)]
 

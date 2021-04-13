@@ -1,6 +1,8 @@
 from queue import Queue
 from random import shuffle
 from Model import Direction
+from random import randint
+from classes.utilities.none_cell import NoneCell
 
 
 class LocalMap:
@@ -19,8 +21,7 @@ class LocalMap:
         self.update_map()
 
     def update_map(self):
-        length = self.game.mapHeight
-        cells = [[None for i in range(length)] for j in range(length)]
+        cells = [[NoneCell() for i in range(self.game.mapWidth)] for j in range(self.game.mapHeight)]
         cells[self.y][self.x] = self.game.ant.getLocationCell()
         for j in range(-self.view_distance, self.view_distance + 1):
             for i in range(-self.view_distance, self.view_distance + 1):
@@ -28,6 +29,13 @@ class LocalMap:
                 if cell is not None:
                     cells[cell.y][cell.x] = cell
         self.map = cells
+        self._update_cells()
+
+    def _update_cells(self):
+        for y in range(len(self.map)):
+            for x in range(len(self.map[0])):
+                if self.map[y][x].type == -1:
+                    self.map[y][x].set_coord(x, y)
 
     def get_neighbors(self, cell):
         neighbors = []
@@ -97,3 +105,4 @@ class LocalMap:
         elif dy > 1:
             dy -= self.game.mapHeight
         return self.directions.get((dy, dx))
+
