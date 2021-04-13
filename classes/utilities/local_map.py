@@ -12,12 +12,13 @@ class LocalMap:
                            (0, -1): Direction.LEFT,
                            (0, 0): Direction.CENTER}
 
-        self.map = self.build_map()
-        self.view_distance = self.game.viewDistance
         self.x = self.game.ant.currentX
         self.y = self.game.ant.currentY
+        self.view_distance = self.game.viewDistance
+        self.map = []
+        self.update_map()
 
-    def build_map(self):
+    def update_map(self):
         length = self.game.mapHeight
         cells = [[None for i in range(length)] for j in range(length)]
         cells[self.y][self.x] = self.game.ant.getLocationCell()
@@ -26,16 +27,17 @@ class LocalMap:
                 cell = self.game.ant.getMapRelativeCell(i, j)
                 if cell is not None:
                     cells[cell.y][cell.x] = cell
-        return cells
+        self.map = cells
 
     def get_neighbors(self, cell):
         neighbors = []
         for direction in self.directions.keys():
-            x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
-            neighbor = self.map[y][x]
-            if neighbor.type != 2:
-                neighbors.append(neighbor)
-            shuffle(neighbors)
+            if self.directions != (0, 0):
+                x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
+                neighbor = self.map[y][x]
+                if neighbor.type != 2:
+                    neighbors.append(neighbor)
+        shuffle(neighbors)
         return neighbors
 
     def _correct_coord(self, x, y):
@@ -73,11 +75,11 @@ class LocalMap:
                 while father[cell] is not None:
                     path.append(self._get_direction(father[cell], cell))
                     cell = father[cell]
-                return reversed(path)
+                return path[::-1]
             else:
                 neighbors = self.get_neighbors(cell)
                 for neighbor in neighbors:
-                    if not marked.get(neighbors, default=False):
+                    if not marked.get(neighbor, False):
                         marked[neighbor] = True
                         queue.put(neighbor)
                         father[neighbor] = cell
