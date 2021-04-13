@@ -8,7 +8,8 @@ class KargarAgent(Agent):
             return self.path_to_follow.pop(0)
         if self.game.ant.currentResource.value > 0:
             # TODO
-            pass
+            print("Where to go?")
+            return Direction.UP
         else:
             path = self.local_map.get_path_to(self._targets.get(Target.RESOURCE))
             if path is not None:
@@ -22,5 +23,5 @@ class KargarAgent(Agent):
                 return self.get_answer()
             self.path_to_follow = [Direction.CENTER]
             print("PATH NOT FOUND!")
-            return self.get_answer()
+            return Direction.DOWN
 

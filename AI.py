@@ -32,6 +32,7 @@ class AI:
         if self.game.ant.antType == 1:
             print("Ant type: Kargar")
             self.direction = self.kargar_agent.get_answer().value
+            print(self.direction)
         else:
             print("Ant type: Sarbaz")
             self.direction = Direction.UP.value

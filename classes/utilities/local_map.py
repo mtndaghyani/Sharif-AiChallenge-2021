@@ -10,7 +10,7 @@ class LocalMap:
                            (-1, 0): Direction.UP,
                            (0, 1): Direction.RIGHT,
                            (0, -1): Direction.LEFT,
-                           (0, 0): Direction.CENTER}
+                           }
 
         self.x = self.game.ant.currentX
         self.y = self.game.ant.currentY
@@ -32,11 +32,11 @@ class LocalMap:
     def get_neighbors(self, cell):
         neighbors = []
         for direction in self.directions.keys():
-            if self.directions != (0, 0):
-                x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
-                neighbor = self.map[y][x]
-                if neighbor.type != 2:
-                    neighbors.append(neighbor)
+
+            x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
+            neighbor = self.map[y][x]
+            if neighbor.type != 2:
+                neighbors.append(neighbor)
         shuffle(neighbors)
         return neighbors
 
@@ -86,5 +86,14 @@ class LocalMap:
         return None
 
     def _get_direction(self, start_cell, end_cell):
-        dx, dy = self._correct_coord(end_cell.x - end_cell.x, end_cell.y - start_cell.y)
+        dx = end_cell.x - start_cell.x
+        dy = end_cell.y - start_cell.y
+        if dx < -1:
+            dx += self.game.mapWidth
+        elif dx > 1:
+            dx -= self.game.mapWidth
+        if dy < -1:
+            dy += self.game.mapHeight
+        elif dy > 1:
+            dy -= self.game.mapHeight
         return self.directions.get((dy, dx))
