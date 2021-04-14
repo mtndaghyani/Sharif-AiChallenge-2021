@@ -62,7 +62,7 @@ class LocalMap:
             cell_y -= self.game.mapHeight
         return cell_x, cell_y
 
-    def get_path_to(self, func):
+    def get_path_to(self, func, non_cell=False):
         """Returns the path if found or None if not found"""
         queue = Queue()
         father = {}
@@ -73,9 +73,10 @@ class LocalMap:
         marked[current_cell] = True
         father[current_cell] = None
 
-        return self._find_path(father, func, marked, queue)
+        return self._find_path(father, func, marked, queue, non_cell=non_cell)
 
-    def _find_path(self, father, func, marked, queue):
+    def _find_path(self, father, func, marked, queue, **kwargs):
+        non_cell = kwargs.get("non_cell")
         while queue.qsize() != 0:
             cell = queue.get()
             if func(cell):
@@ -87,7 +88,9 @@ class LocalMap:
             else:
                 neighbors = self.get_neighbors(cell)
                 for neighbor in neighbors:
-                    if not marked.get(neighbor, False):
+                    if neighbor.type == -1 and not non_cell:  # Check non_cell neighbor only if non_cell arg is True
+                        continue
+                    elif not marked.get(neighbor, False):
                         marked[neighbor] = True
                         queue.put(neighbor)
                         father[neighbor] = cell

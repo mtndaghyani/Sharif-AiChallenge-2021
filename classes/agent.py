@@ -2,7 +2,6 @@ from random import randint
 
 from Model import *
 from classes.utilities.local_map import LocalMap
-from classes.utilities.none_cell import NoneCell
 
 
 class Agent:
@@ -11,7 +10,8 @@ class Agent:
         self.game = None
         self.local_map = None
         self.path_to_follow = []
-        self.home_path = []
+        self.path_from_home = []
+        self.path_to_home = []
         self._targets = {"RESOURCE": lambda cell: cell.resource_value > 0,
                          "HOME": lambda cell: cell.x == self.game.baseX and cell.y == self.game.baseY,
                          "NEAREST_INVISIBLE": lambda cell: cell.type == -1}
@@ -28,8 +28,9 @@ class Agent:
     def get_random_direction():
         return [Direction.DOWN, Direction.UP, Direction.RIGHT, Direction.LEFT][randint(0, 3)]
 
-    def set_home_path(self, path):
-        temp = path[::-1]
+    def set_home_path(self):
+        """Reverse path_from_home and calculate appropriate directions to make path_to_home"""
+        temp = self.path_from_home[::-1]
         reversed_path = []
         for direction in temp:
             if direction.value == 1:
@@ -40,4 +41,4 @@ class Agent:
                 reversed_path.append(Direction.RIGHT)
             else:
                 reversed_path.append(Direction.UP)
-        self.home_path = reversed_path
+        self.path_to_home = reversed_path
