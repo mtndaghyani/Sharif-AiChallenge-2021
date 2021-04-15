@@ -17,6 +17,7 @@ class KargarAgent(Agent):
             self.path_to_follow = self.path_to_home
             return self.get_answer()
         else:
+            self.update_local_map()
             path = self.local_map.get_path_to(self._targets.get(Target.RESOURCE))
             if path is not None:
                 self.path_to_follow = path

@@ -18,10 +18,12 @@ class Agent:
 
     def initialize(self, game):
         self.game = game
+        self.update_local_map()
+
+    def update_local_map(self):
         self.local_map = LocalMap(self.game)
 
     def get_answer(self):
-        self.local_map.update_map()
         pass
 
     @staticmethod
