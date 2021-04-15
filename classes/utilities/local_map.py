@@ -82,7 +82,7 @@ class LocalMap:
             if func(cell):
                 path = []
                 while father[cell] is not None:
-                    path.append(self._get_direction(father[cell], cell))
+                    path.append(self.get_direction(father[cell], cell))
                     cell = father[cell]
                 return path[::-1]
             else:
@@ -96,7 +96,7 @@ class LocalMap:
                         father[neighbor] = cell
         return None
 
-    def _get_direction(self, start_cell, end_cell):
+    def get_direction(self, start_cell, end_cell):
         dx = end_cell.x - start_cell.x
         dy = end_cell.y - start_cell.y
         if dx < -1:
@@ -108,4 +108,11 @@ class LocalMap:
         elif dy > 1:
             dy -= self.game.mapHeight
         return self.directions.get((dy, dx))
+
+    def get_cell_from_direction(self, direction):
+        if direction.value == Direction.CENTER.value:
+            return self.game.ant.getLocationCell()
+        for coord in self.directions:
+            if self.directions[coord].value == direction.value:
+                return self.game.ant.getMapRelativeCell(coord[1], coord[0])
 

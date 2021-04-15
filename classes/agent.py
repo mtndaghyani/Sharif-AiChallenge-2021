@@ -41,6 +41,8 @@ class Agent:
                 reversed_path.append(Direction.DOWN)
             elif direction.value == 3:
                 reversed_path.append(Direction.RIGHT)
-            else:
+            elif direction.value == 4:
                 reversed_path.append(Direction.UP)
+            else:
+                reversed_path.append(Direction.CENTER)
         self.path_to_home = reversed_path
