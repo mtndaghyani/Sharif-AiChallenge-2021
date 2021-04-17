@@ -1,11 +1,12 @@
 from queue import Queue
 from random import shuffle
+
 from Model import Direction
-from random import randint
 from classes.utilities.none_cell import NoneCell
 
 
 class LocalMap:
+
     def __init__(self, game):
         self.game = game
         self.directions = {(1, 0): Direction.DOWN,
@@ -17,6 +18,8 @@ class LocalMap:
         self.x = self.game.ant.currentX
         self.y = self.game.ant.currentY
         self.view_distance = self.game.viewDistance
+        self.sarbaz_zone_radius = self.view_distance + 2
+        self.kargar_zone_radius = self.sarbaz_zone_radius + self.view_distance
         self.map = []
         self.update_map()
 
@@ -37,14 +40,15 @@ class LocalMap:
                 if self.map[y][x].type == -1:
                     self.map[y][x].set_coord(x, y)
 
-    def get_neighbors(self, cell):
+    def get_neighbors(self, cell, is_kargar=False):
         neighbors = []
         for direction in self.directions.keys():
 
             x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
             neighbor = self.map[y][x]
             if neighbor.type != 2:
-                neighbors.append(neighbor)
+                if (not is_kargar) or self.in_kargar_defensive_zone(neighbor):
+                    neighbors.append(neighbor)
         return neighbors
 
     def _correct_coord(self, x, y):
@@ -61,21 +65,24 @@ class LocalMap:
             cell_y -= self.game.mapHeight
         return cell_x, cell_y
 
-    def get_path_to(self, func, non_cell=False, shuffle_neighbors=True):
+    def get_path_to(self, func, non_cell=False, shuffle_neighbors=True, is_kargar=False):
         """Returns the path if found or None if not found"""
         queue = Queue()
         father = {}
         marked = {}
-
         current_cell = self.game.ant.getLocationCell()
         queue.put(current_cell)
         marked[current_cell] = True
         father[current_cell] = None
 
-        return self._find_path(father, func, marked, queue, non_cell=non_cell, shuffle_neighbors=shuffle_neighbors)
+        return self._find_path(father, func, marked, queue,
+                               non_cell=non_cell,
+                               shuffle_neighbors=shuffle_neighbors,
+                               is_kargar=is_kargar)
 
     def _find_path(self, father, func, marked, queue, **kwargs):
         non_cell = kwargs.get("non_cell")
+        is_karger = kwargs.get("is_kargar")
         while queue.qsize() != 0:
             cell = queue.get()
             if func(cell):
@@ -85,7 +92,7 @@ class LocalMap:
                     cell = father[cell]
                 return path[::-1]
             else:
-                neighbors = self.get_neighbors(cell)
+                neighbors = self.get_neighbors(cell, is_karger)
                 if kwargs.get("shuffle_neighbors"):
                     shuffle(neighbors)
                 for neighbor in neighbors:
@@ -117,3 +124,12 @@ class LocalMap:
             if self.directions[coord].value == direction.value:
                 return self.game.ant.getMapRelativeCell(coord[1], coord[0])
 
+    def in_sarbaz_defensive_zone(self, cell):
+        distance = abs(cell.x - self.game.baseX) \
+                   + abs(cell.y - self.game.baseY)
+        return distance < self.sarbaz_zone_radius
+
+    def in_kargar_defensive_zone(self, cell):
+        distance = abs(cell.x - self.game.baseX) \
+                   + abs(cell.y - self.game.baseY)
+        return distance < self.kargar_zone_radius

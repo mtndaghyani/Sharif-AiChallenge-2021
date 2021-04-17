@@ -19,18 +19,22 @@ class SarbazAgent(Agent):
         return self.handle_explore_mode()
 
     def handle_explore_mode(self):
+        if not self.local_map.in_sarbaz_defensive_zone(self.game.ant.getLocationCell()):
+            print("Out of zone")
+            return Direction.CENTER
         if len(self.path_to_follow) > 0:
             return self.path_to_follow.pop(0)
-        if self.game.ant.getLocationCell().resource_value > 0:
-            return Direction.CENTER
-        path = self.local_map.get_path_to(self._targets.get(Target.RESOURCE), shuffle_neighbors=False)
-        if path is not None:
-            self.path_to_follow = path
-            print("Resource found!")
-            return self.get_answer()
+        # if self.game.ant.getLocationCell().resource_value > 0:
+        #     return Direction.CENTER
+        # path = self.local_map.get_path_to(self._targets.get(Target.RESOURCE),
+        #                                   shuffle_neighbors=False)
+        # if path is not None:
+        #     self.path_to_follow = path
+        #     print("Resource found!")
+        #     return self.get_answer()
         path = self.local_map.get_path_to(self._targets.get(Target.NEAREST_INVISIBLE),
                                           non_cell=True,
-                                          shuffle_neighbors=False)
+                                          shuffle_neighbors=True)
         if path is not None:
             self.path_to_follow = path
             print("New invisible found!")
@@ -60,3 +64,4 @@ class SarbazAgent(Agent):
                     nearest = neighbor
                     min_distance = distance
         return self.local_map.get_direction(current_cell, nearest)
+

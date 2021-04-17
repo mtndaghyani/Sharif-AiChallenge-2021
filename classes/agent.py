@@ -5,6 +5,7 @@ from classes.utilities.local_map import LocalMap
 
 
 class Agent:
+
     def __init__(self):
         print("Agent created!")
         self.game = None
