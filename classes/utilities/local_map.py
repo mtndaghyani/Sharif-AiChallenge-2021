@@ -45,7 +45,6 @@ class LocalMap:
             neighbor = self.map[y][x]
             if neighbor.type != 2:
                 neighbors.append(neighbor)
-        shuffle(neighbors)
         return neighbors
 
     def _correct_coord(self, x, y):
@@ -62,7 +61,7 @@ class LocalMap:
             cell_y -= self.game.mapHeight
         return cell_x, cell_y
 
-    def get_path_to(self, func, non_cell=False):
+    def get_path_to(self, func, non_cell=False, shuffle_neighbors=True):
         """Returns the path if found or None if not found"""
         queue = Queue()
         father = {}
@@ -73,7 +72,7 @@ class LocalMap:
         marked[current_cell] = True
         father[current_cell] = None
 
-        return self._find_path(father, func, marked, queue, non_cell=non_cell)
+        return self._find_path(father, func, marked, queue, non_cell=non_cell, shuffle_neighbors=shuffle_neighbors)
 
     def _find_path(self, father, func, marked, queue, **kwargs):
         non_cell = kwargs.get("non_cell")
@@ -87,6 +86,8 @@ class LocalMap:
                 return path[::-1]
             else:
                 neighbors = self.get_neighbors(cell)
+                if kwargs.get("shuffle_neighbors"):
+                    shuffle(neighbors)
                 for neighbor in neighbors:
                     if neighbor.type == -1 and not non_cell:  # Check non_cell neighbor only if non_cell arg is True
                         continue

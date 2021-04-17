@@ -23,12 +23,14 @@ class SarbazAgent(Agent):
             return self.path_to_follow.pop(0)
         if self.game.ant.getLocationCell().resource_value > 0:
             return Direction.CENTER
-        path = self.local_map.get_path_to(self._targets.get(Target.RESOURCE))
+        path = self.local_map.get_path_to(self._targets.get(Target.RESOURCE), shuffle_neighbors=False)
         if path is not None:
             self.path_to_follow = path
             print("Resource found!")
             return self.get_answer()
-        path = self.local_map.get_path_to(self._targets.get(Target.NEAREST_INVISIBLE), non_cell=True)
+        path = self.local_map.get_path_to(self._targets.get(Target.NEAREST_INVISIBLE),
+                                          non_cell=True,
+                                          shuffle_neighbors=False)
         if path is not None:
             self.path_to_follow = path
             print("New invisible found!")
