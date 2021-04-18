@@ -18,8 +18,8 @@ class LocalMap:
         self.x = self.game.ant.currentX
         self.y = self.game.ant.currentY
         self.view_distance = self.game.viewDistance
-        self.sarbaz_zone_radius = self.view_distance + 2
-        self.kargar_zone_radius = self.sarbaz_zone_radius + self.view_distance
+        self.sarbaz_zone_radius = self.game.attackDistance + 2
+        self.kargar_zone_radius = 1000
         self.map = []
         self.update_map()
 
