@@ -10,6 +10,7 @@ class SarbazAgent(Agent):
         self.attack_mode = False
         self.target_x = 0
         self.target_y = 0
+        self.in_defensive_zone = True
 
     def get_answer(self) -> Direction:
         self.update_local_map()
@@ -20,7 +21,13 @@ class SarbazAgent(Agent):
 
     def handle_explore_mode(self):
         if not self.local_map.in_sarbaz_defensive_zone(self.game.ant.getLocationCell()):
-            print("Out of zone")
+            self.in_defensive_zone = False
+        path = self.local_map.get_path_to(self._targets.get(Target.ENEMY_SARBAZ))
+        if path is not None:
+            print("Enemy found!")
+            return path[0]
+        if not self.in_defensive_zone:
+            print("Out of zone!")
             return Direction.CENTER
         if len(self.path_to_follow) > 0:
             return self.path_to_follow.pop(0)

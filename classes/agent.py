@@ -15,7 +15,8 @@ class Agent:
         self.path_to_home = []
         self._targets = {"RESOURCE": lambda cell: cell.resource_value > 0,
                          "HOME": lambda cell: cell.x == self.game.baseX and cell.y == self.game.baseY,
-                         "NEAREST_INVISIBLE": lambda cell: cell.type == -1}
+                         "NEAREST_INVISIBLE": lambda cell: cell.type == -1,
+                         "ENEMY_SARBAZ": lambda cell: self.contains_enemy_soldier(cell)}
 
     def initialize(self, game):
         self.game = game
@@ -47,3 +48,14 @@ class Agent:
             else:
                 reversed_path.append(Direction.CENTER)
         self.path_to_home = reversed_path
+
+    def contains_enemy_soldier(self, cell):
+        """Checks if the cell is in the defensive zone
+            If yes, checks whether it contains enemy soldier.
+        """
+        if not self.local_map.in_sarbaz_defensive_zone(cell):
+            return False
+        for ant in cell.ants:
+            if ant.antTeam == AntTeam.ENEMY.value and ant.antType == AntType.SARBAAZ.value:
+                return True
+        return False
