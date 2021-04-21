@@ -1,4 +1,5 @@
 from classes.agent import Agent, Direction
+from classes.utilities.local_map import LocalMap
 from classes.utilities.target import Target
 
 
@@ -22,19 +23,24 @@ class SarbazAgent(Agent):
         return self.handle_explore_mode()
 
     def handle_explore_mode(self):
-        if self.game.ant.getLocationCell().resource_value > 0 and self.do_wait:
+        current_cell = self.game.ant.getLocationCell()
+        if current_cell.resource_value > 0 \
+                and self.do_wait \
+                and not LocalMap.in_blacklist(current_cell):
             return self.handle_waiting_mode()
         self.do_wait = True
         if len(self.path_to_follow) > 0:
             return self.path_to_follow.pop(0)
-        path = self.local_map.get_path_to(self._targets.get(Target.RESOURCE), shuffle_neighbors=False)
+        path = self.local_map.get_path_to(self._targets.get(Target.RESOURCE),
+                                          shuffle_neighbors=True,
+                                          check_black_list=True)
         if path is not None:
             self.path_to_follow = path
             print("Resource found!")
             return self.get_answer()
         path = self.local_map.get_path_to(self._targets.get(Target.NEAREST_INVISIBLE),
                                           non_cell=True,
-                                          shuffle_neighbors=False)
+                                          shuffle_neighbors=True)
         if path is not None:
             self.path_to_follow = path
             print("New invisible found!")
@@ -84,3 +90,4 @@ class SarbazAgent(Agent):
     def _reset_waiting_mode(self):
         self.waiting_turns = 0
         self.do_wait = False
+        LocalMap.add_to_black_list(self.game.ant.getLocationCell())

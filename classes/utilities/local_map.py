@@ -6,6 +6,8 @@ from classes.utilities.none_cell import NoneCell
 
 
 class LocalMap:
+    black_list = []
+
     def __init__(self, game):
         self.game = game
         self.directions = {(1, 0): Direction.DOWN,
@@ -61,7 +63,7 @@ class LocalMap:
             cell_y -= self.game.mapHeight
         return cell_x, cell_y
 
-    def get_path_to(self, func, non_cell=False, shuffle_neighbors=True):
+    def get_path_to(self, func, non_cell=False, shuffle_neighbors=True, check_black_list=False):
         """Returns the path if found or None if not found"""
         queue = Queue()
         father = {}
@@ -72,13 +74,18 @@ class LocalMap:
         marked[current_cell] = True
         father[current_cell] = None
 
-        return self._find_path(father, func, marked, queue, non_cell=non_cell, shuffle_neighbors=shuffle_neighbors)
+        return self._find_path(father, func, marked, queue,
+                               non_cell=non_cell,
+                               shuffle_neighbors=shuffle_neighbors,
+                               check_black_list=check_black_list)
 
     def _find_path(self, father, func, marked, queue, **kwargs):
         non_cell = kwargs.get("non_cell")
+        check_black_list = kwargs.get("check_black_list")
+
         while queue.qsize() != 0:
             cell = queue.get()
-            if func(cell):
+            if func(cell) and cell != self.game.ant.getLocationCell():
                 path = []
                 while father[cell] is not None:
                     path.append(self.get_direction(father[cell], cell))
@@ -90,6 +97,9 @@ class LocalMap:
                     shuffle(neighbors)
                 for neighbor in neighbors:
                     if neighbor.type == -1 and not non_cell:  # Check non_cell neighbor only if non_cell arg is True
+                        continue
+                    # Check whether neighbor is in black_list only if check_black_list is True
+                    if check_black_list and LocalMap.in_blacklist(neighbor):
                         continue
                     elif not marked.get(neighbor, False):
                         marked[neighbor] = True
@@ -117,3 +127,10 @@ class LocalMap:
             if self.directions[coord].value == direction.value:
                 return self.game.ant.getMapRelativeCell(coord[1], coord[0])
 
+    @classmethod
+    def add_to_black_list(cls, cell):
+        LocalMap.black_list.append((cell.x, cell.y))
+
+    @classmethod
+    def in_blacklist(cls, cell):
+        return (cell.x, cell.y) in LocalMap.black_list
