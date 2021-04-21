@@ -14,7 +14,8 @@ class Agent:
         self.path_to_home = []
         self._targets = {"RESOURCE": lambda cell: cell.resource_value > 0,
                          "HOME": lambda cell: cell.x == self.game.baseX and cell.y == self.game.baseY,
-                         "NEAREST_INVISIBLE": lambda cell: cell.type == -1}
+                         "NEAREST_INVISIBLE": lambda cell: cell.type == -1,
+                         "OPPONENT": lambda cell: self.contains_opponent(cell)}
 
     def initialize(self, game):
         self.game = game
@@ -46,3 +47,10 @@ class Agent:
             else:
                 reversed_path.append(Direction.CENTER)
         self.path_to_home = reversed_path
+
+    @staticmethod
+    def contains_opponent(cell):
+        for ant in cell.ants:
+            if ant.antTeam == AntTeam.ENEMY.value:
+                return True
+        return False
