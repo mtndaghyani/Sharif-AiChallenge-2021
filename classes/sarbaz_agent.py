@@ -4,7 +4,7 @@ from classes.utilities.target import Target
 
 
 class SarbazAgent(Agent):
-    TURNS_TO_WAIT = 5
+    TURNS_TO_WAIT = 7
 
     def __init__(self):
         super().__init__()
@@ -73,7 +73,8 @@ class SarbazAgent(Agent):
 
     def handle_waiting_mode(self):
         self.waiting_turns += 1
-        path = self.local_map.get_path_to(self._targets.get(Target.OPPONENT))
+        path = self.local_map.get_path_to(self._targets.get(Target.OPPONENT),
+                                          max_depth=self.game.ant.viewDistance)
         if path is not None:
             self.waiting_turns = 0
         if self.waiting_turns <= SarbazAgent.TURNS_TO_WAIT:

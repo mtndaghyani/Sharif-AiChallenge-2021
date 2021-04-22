@@ -7,6 +7,7 @@ from classes.utilities.none_cell import NoneCell
 
 class LocalMap:
     black_list = []
+    map = []
 
     def __init__(self, game):
         self.game = game
@@ -19,32 +20,32 @@ class LocalMap:
         self.x = self.game.ant.currentX
         self.y = self.game.ant.currentY
         self.view_distance = self.game.viewDistance
-        self.map = []
         self.update_map()
 
     def update_map(self):
-        cells = [[NoneCell() for i in range(self.game.mapWidth)] for j in range(self.game.mapHeight)]
-        cells[self.y][self.x] = self.game.ant.getLocationCell()
+        if len(LocalMap.map) == 0:
+            LocalMap.map = [[NoneCell() for i in range(self.game.mapWidth)] for j in range(self.game.mapHeight)]
+        LocalMap.map[self.y][self.x] = self.game.ant.getLocationCell()
         for j in range(-self.view_distance, self.view_distance + 1):
             for i in range(-self.view_distance, self.view_distance + 1):
                 cell = self.game.ant.getMapRelativeCell(i, j)
                 if cell is not None:
-                    cells[cell.y][cell.x] = cell
-        self.map = cells
-        self._update_cells()
+                    LocalMap.map[cell.y][cell.x] = cell
+        LocalMap._update_cells()
 
-    def _update_cells(self):
-        for y in range(len(self.map)):
-            for x in range(len(self.map[0])):
-                if self.map[y][x].type == -1:
-                    self.map[y][x].set_coord(x, y)
+    @classmethod
+    def _update_cells(cls):
+        for y in range(len(cls.map)):
+            for x in range(len(cls.map[0])):
+                if cls.map[y][x].type == -1:
+                    cls.map[y][x].set_coord(x, y)
 
     def get_neighbors(self, cell):
         neighbors = []
         for direction in self.directions.keys():
 
             x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
-            neighbor = self.map[y][x]
+            neighbor = LocalMap.map[y][x]
             if neighbor.type != 2:
                 neighbors.append(neighbor)
         return neighbors
@@ -63,7 +64,10 @@ class LocalMap:
             cell_y -= self.game.mapHeight
         return cell_x, cell_y
 
-    def get_path_to(self, func, non_cell=False, shuffle_neighbors=True, check_black_list=False):
+    def get_path_to(self, func, non_cell=False,
+                    shuffle_neighbors=True,
+                    check_black_list=False,
+                    max_depth=1000):
         """Returns the path if found or None if not found"""
         queue = Queue()
         father = {}
@@ -77,13 +81,15 @@ class LocalMap:
         return self._find_path(father, func, marked, queue,
                                non_cell=non_cell,
                                shuffle_neighbors=shuffle_neighbors,
-                               check_black_list=check_black_list)
+                               check_black_list=check_black_list,
+                               max_depth=max_depth)
 
     def _find_path(self, father, func, marked, queue, **kwargs):
         non_cell = kwargs.get("non_cell")
         check_black_list = kwargs.get("check_black_list")
-
-        while queue.qsize() != 0:
+        max_depth = int(kwargs.get("max_depth"))
+        depth = 0
+        while queue.qsize() != 0 and depth <= max_depth:
             cell = queue.get()
             if func(cell) and cell != self.game.ant.getLocationCell():
                 path = []
@@ -105,6 +111,7 @@ class LocalMap:
                         marked[neighbor] = True
                         queue.put(neighbor)
                         father[neighbor] = cell
+            depth += 1
         return None
 
     def get_direction(self, start_cell, end_cell):
