@@ -30,7 +30,12 @@ class SarbazAgent(Agent):
             return self.handle_waiting_mode()
         self.do_wait = True
         if len(self.path_to_follow) > 0:
-            return self.path_to_follow.pop(0)
+            answer = self.path_to_follow.pop(0)
+            cell = self.local_map.get_cell_from_direction(answer)
+            if cell.type not in LocalMap.invalid_cell_types:
+                return answer
+            return Direction.CENTER
+
         path = self.local_map.get_path_to(self._targets.get(Target.RESOURCE),
                                           shuffle_neighbors=True,
                                           check_black_list=True)

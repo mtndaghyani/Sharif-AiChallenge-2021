@@ -1,6 +1,6 @@
 from queue import Queue
 from random import shuffle
-from Model import Direction
+from Model import Direction, CellType, AntType
 from random import randint
 from classes.utilities.none_cell import NoneCell
 
@@ -8,6 +8,7 @@ from classes.utilities.none_cell import NoneCell
 class LocalMap:
     black_list = []
     map = []
+    invalid_cell_types = []
 
     def __init__(self, game):
         self.game = game
@@ -25,6 +26,13 @@ class LocalMap:
     def update_map(self):
         if len(LocalMap.map) == 0:
             LocalMap.map = [[NoneCell() for i in range(self.game.mapWidth)] for j in range(self.game.mapHeight)]
+            if self.game.ant.antType == AntType.SARBAAZ:
+                LocalMap.invalid_cell_types = [CellType.WALL.value,
+                                               CellType.SWAMP.value]
+            else:
+                LocalMap.invalid_cell_types = [CellType.WALL.value,
+                                               CellType.SWAMP.value,
+                                               CellType.TRAP.value]
         LocalMap.map[self.y][self.x] = self.game.ant.getLocationCell()
         for j in range(-self.view_distance, self.view_distance + 1):
             for i in range(-self.view_distance, self.view_distance + 1):
@@ -42,11 +50,11 @@ class LocalMap:
 
     def get_neighbors(self, cell):
         neighbors = []
-        for direction in self.directions.keys():
 
+        for direction in self.directions.keys():
             x, y = self._correct_coord(cell.x + direction[1], cell.y + direction[0])
             neighbor = LocalMap.map[y][x]
-            if neighbor.type != 2:
+            if neighbor.type not in LocalMap.invalid_cell_types:
                 neighbors.append(neighbor)
         return neighbors
 

@@ -1,4 +1,5 @@
 from classes.agent import Agent, Direction, CellType
+from classes.utilities.local_map import LocalMap
 from classes.utilities.target import Target
 
 
@@ -11,7 +12,7 @@ class KargarAgent(Agent):
         if len(self.path_to_follow) > 0:
             answer = self.path_to_follow.pop(0)
             cell = self.local_map.get_cell_from_direction(answer)
-            if cell.type != CellType.WALL.value:
+            if cell.type not in LocalMap.invalid_cell_types:
                 self.path_from_home.append(answer)
                 return answer
             answer = Direction.CENTER
