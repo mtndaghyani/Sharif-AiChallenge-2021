@@ -14,7 +14,7 @@ class Agent:
         self.path_to_home = []
         self._targets = {"RESOURCE": lambda cell: cell.resource_value > 0,
                          "HOME": lambda cell: cell.x == self.game.baseX and cell.y == self.game.baseY,
-                         "NEAREST_INVISIBLE": lambda cell: cell.type == -1,
+                         "NEAREST_INVISIBLE": lambda cell: cell.type == -1 and not LocalMap.in_cold_list(cell),
                          "OPPONENT": lambda cell: self.contains_opponent(cell)}
 
     def initialize(self, game):
@@ -54,3 +54,15 @@ class Agent:
             if ant.antTeam == AntTeam.ENEMY.value:
                 return True
         return False
+
+    def get_message(self):
+
+        for j in range(-self.game.viewDistance, self.game.viewDistance + 1):
+            for i in range(-self.game.viewDistance, self.game.viewDistance + 1):
+                cell = self.game.ant.getMapRelativeCell(i, j)
+                if cell is not None:
+                    if cell.type == 0 and cell.x != self.game.baseX and cell.y != self.game.baseY:
+                        return f'b/{cell.x}/{cell.y}'
+
+        return f'n/{self.game.ant.currentX}/{self.game.ant.currentY}'
+

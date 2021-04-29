@@ -14,9 +14,11 @@ class SarbazAgent(Agent):
         self.target_y = 0
         self.waiting_turns = 0
         self.do_wait = False
+        self.checked_messages = []
 
     def get_answer(self) -> Direction:
         self.update_local_map()
+        self.check_chat_box()
         if self.attack_mode:
             return self.handle_attack_mode()
         self.visited_cells = {}
@@ -43,9 +45,11 @@ class SarbazAgent(Agent):
             self.path_to_follow = path
             print("Resource found!")
             return self.get_answer()
+
         path = self.local_map.get_path_to(self._targets.get(Target.NEAREST_INVISIBLE),
                                           non_cell=True,
-                                          shuffle_neighbors=True)
+                                          shuffle_neighbors=True,
+                                          )
         if path is not None:
             self.path_to_follow = path
             print("New invisible found!")
@@ -97,3 +101,20 @@ class SarbazAgent(Agent):
         self.waiting_turns = 0
         self.do_wait = False
         LocalMap.add_to_black_list(self.game.ant.getLocationCell())
+
+    def check_chat_box(self):
+        chat_box = self.game.chatBox
+        for chat in chat_box.allChats:
+            if chat.text not in self.checked_messages:
+                self.checked_messages.append(chat.text)
+                message_list = chat.text.split('/')
+                x = int(message_list[1])
+                y = int(message_list[2])
+                if message_list[0] == 'b':
+                    print("OPPONENT BASE FOUND!!!")
+                    self.attack_mode = True
+                    self.target_x = x
+                    self.target_y = y
+                else:
+                    self.attack_mode = False
+                    self.local_map.update_cold_list(x, y)

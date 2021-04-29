@@ -1,4 +1,4 @@
-from classes.agent import Agent, Direction, CellType
+from classes.agent import Agent, Direction
 from classes.utilities.local_map import LocalMap
 from classes.utilities.target import Target
 
@@ -29,7 +29,6 @@ class KargarAgent(Agent):
             if path is not None:
                 self.path_to_follow = path
                 print("Resource found!")
-                print(path)
                 return self.get_answer()
             path = self.local_map.get_path_to(self._targets.get(Target.NEAREST_INVISIBLE), non_cell=True)
             if path is not None:

@@ -8,6 +8,7 @@ from classes.utilities.none_cell import NoneCell
 class LocalMap:
     black_list = []
     map = []
+    cold_list = []
     invalid_cell_types = []
 
     def __init__(self, game):
@@ -149,3 +150,19 @@ class LocalMap:
     @classmethod
     def in_blacklist(cls, cell):
         return (cell.x, cell.y) in LocalMap.black_list
+
+    def update_cold_list(self, cell_x, cell_y):
+        for j in range(-self.view_distance, self.view_distance + 1):
+            for i in range(-self.view_distance, self.view_distance + 1):
+                x = (cell_x + i) % self.game.mapWidth
+                y = (cell_y + j) % self.game.mapHeight
+                if x < 0:
+                    x += self.game.mapWidth
+                if y < 0:
+                    y += self.game.mapHeight
+                
+                self.cold_list.append((x, y))
+
+    @classmethod
+    def in_cold_list(cls, cell):
+        return (cell.x, cell.y) in LocalMap.cold_list
